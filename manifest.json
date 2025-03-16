@@ -6,12 +6,14 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "scripting"
+    "scripting",
+    "webRequest"
   ],
   "host_permissions": [
     "https://archive.vn/*",
     "https://archive.is/*",
-    "https://archive.ph/*"
+    "https://archive.ph/*",
+    "*://*/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -22,7 +24,8 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "icons": {
     "16": "icon16.png",
