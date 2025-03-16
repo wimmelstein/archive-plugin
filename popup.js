@@ -2,12 +2,16 @@
 async function checkArchiveExists(url, archiveDomain) {
   try {
     console.log('Checking archive URL:', url);
-    const response = await fetch(url);
+    const response = await fetch(url, { redirect: 'follow' });
     console.log('Response status:', response.status);
     if (!response.ok) {
       console.log('Response not OK:', response.statusText);
       return null;
     }
+    
+    // Get the final URL after any redirects
+    const finalUrl = response.url;
+    console.log('Final URL after redirects:', finalUrl);
     
     const html = await response.text();
     console.log('Response HTML length:', html.length);
@@ -36,7 +40,7 @@ async function checkArchiveExists(url, archiveDomain) {
       versions.sort((a, b) => b.version.localeCompare(a.version));
       return {
         exists: true,
-        url: url,
+        url: finalUrl,
         versions: versions
       };
     }
