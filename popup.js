@@ -1,4 +1,4 @@
-// Function to check if a URL exists in an archive and get the most recent thumbnail
+// Function to check if a URL exists in an archive and get all versions
 async function checkArchiveExists(url, archiveDomain) {
   try {
     const response = await fetch(url);
@@ -8,15 +8,29 @@ async function checkArchiveExists(url, archiveDomain) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Look for thumbnails in the page
-    const thumbnails = doc.querySelectorAll('img[src*="thumb"]');
-    if (thumbnails.length > 0) {
-      // Get the last thumbnail (most recent)
-      const lastThumbnail = thumbnails[thumbnails.length - 1];
+    // Look for version links in the page
+    const versionLinks = doc.querySelectorAll('a[href*="/"]');
+    let versions = [];
+    
+    for (const link of versionLinks) {
+      const href = link.getAttribute('href');
+      if (href && href.match(/\/\d+$/)) {
+        const version = parseInt(href.match(/\d+$/)[0]);
+        versions.push({
+          url: url + href,
+          version: version,
+          text: link.textContent.trim()
+        });
+      }
+    }
+    
+    if (versions.length > 0) {
+      // Sort versions by number (descending)
+      versions.sort((a, b) => b.version - a.version);
       return {
         exists: true,
         url: url,
-        thumbnail: lastThumbnail.src
+        versions: versions
       };
     }
     return null;
@@ -36,9 +50,49 @@ function updateStatus(message) {
   document.getElementById('status').textContent = message;
 }
 
+// Function to display versions
+function displayVersions(versions, siteName) {
+  const versionsDiv = document.getElementById('versions');
+  versionsDiv.innerHTML = '';
+  
+  versions.forEach(version => {
+    const div = document.createElement('div');
+    div.className = 'version-item';
+    div.textContent = `Version ${version.version} - ${version.text || 'No description'}`;
+    div.onclick = () => {
+      // Remove selection from other items
+      document.querySelectorAll('.version-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      // Add selection to clicked item
+      div.classList.add('selected');
+      // Update the current tab URL
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs[0]) {
+          chrome.tabs.update(tabs[0].id, { url: version.url });
+        }
+      });
+    };
+    versionsDiv.appendChild(div);
+  });
+}
+
+// Function to shuffle array
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 document.getElementById('archiveButton').addEventListener('click', async () => {
   const button = document.getElementById('archiveButton');
   const status = document.getElementById('status');
+  const versionsDiv = document.getElementById('versions');
+  
+  // Clear previous versions
+  versionsDiv.innerHTML = '';
   
   // Disable button and show initial status
   button.disabled = true;
@@ -59,10 +113,10 @@ document.getElementById('archiveButton').addEventListener('click', async () => {
       }
 
       // List of archive sites to try
-      const archiveSites = [
+      const archiveSites = shuffleArray([
         { domain: 'archive.vn', name: 'Archive.vn' },
         { domain: 'archive.is', name: 'Archive.is' }
-      ];
+      ]);
 
       // Try each archive site
       for (const site of archiveSites) {
@@ -71,9 +125,8 @@ document.getElementById('archiveButton').addEventListener('click', async () => {
         const result = await checkArchiveExists(archiveUrl, site.domain);
         
         if (result && result.exists) {
-          // Update the current tab URL
-          chrome.tabs.update(tab.id, { url: result.url });
-          updateStatus(`Found on ${site.name}`);
+          updateStatus(`Found ${result.versions.length} versions on ${site.name}`);
+          displayVersions(result.versions, site.name);
           return;
         }
       }
