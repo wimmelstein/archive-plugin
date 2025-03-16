@@ -1,27 +1,49 @@
-# Archive.vn Redirector Chrome Extension
+# Archive Checker Extension
 
-This Chrome extension automatically redirects web pages to their archive.vn version.
-
-## Installation
-
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode" in the top right corner
-4. Click "Load unpacked" and select the directory containing these files
-
-## Usage
-
-Once installed, the extension will automatically redirect any webpage you visit to its archive.vn version. For example:
-- Original URL: `https://example.com/page`
-- Redirected URL: `https://archive.vn/example.com/page`
+A Chrome extension that checks for archived versions of web pages across multiple archive services.
 
 ## Features
 
-- Automatic redirection to archive.vn
-- Works on all websites
-- Skips already archived pages
-- Only processes main frame navigation (ignores iframes)
+- Checks multiple archive services (archive.vn, archive.is, archive.ph)
+- Shows a list of available archived versions
+- Allows users to choose which version to view
+- Simple and intuitive interface
+- Status updates while checking archives
 
-## Note
+## Installation
 
-You'll need to add icon files (`icon48.png` and `icon128.png`) to the extension directory. You can use any 48x48 and 128x128 pixel images for these icons. 
+1. Clone this repository or download the source code
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode" in the top right
+4. Click "Load unpacked" and select the extension directory
+
+## Usage
+
+1. Click the extension icon while on any webpage
+2. The extension will check various archive services for saved versions
+3. If versions are found, they will be displayed in a list
+4. Click on any version to view it
+
+## Legal Notice
+
+**Important:** This extension was created for educational purposes only.
+
+- Users should respect websites' Terms of Service and paid subscriptions
+- The use of archive services may be subject to their own terms of service and legal restrictions
+- This extension is not intended to circumvent paywalls or bypass subscription requirements
+- Users are responsible for ensuring their use of archive services complies with applicable laws and terms of service
+
+## Development
+
+The extension is built using:
+- HTML/CSS for the popup interface
+- JavaScript for the core functionality
+- Chrome Extension Manifest V3
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Disclaimer
+
+This extension is provided "as is" without warranty of any kind. The developers are not responsible for any use or misuse of this extension or archive services. 
