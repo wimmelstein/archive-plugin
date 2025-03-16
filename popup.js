@@ -42,7 +42,9 @@ async function checkArchiveExists(url, archiveDomain) {
 
 // Function to create archive URL
 function createArchiveUrl(url, archiveDomain) {
-  return url.replace('://', `://${archiveDomain}/`);
+  // Remove any existing protocol
+  const cleanUrl = url.replace(/^https?:\/\//, '');
+  return `https://${archiveDomain}/${cleanUrl}`;
 }
 
 // Function to update status message
