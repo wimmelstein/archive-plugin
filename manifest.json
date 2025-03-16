@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Archive.vn Redirector",
   "version": "1.0",
-  "description": "Redirects to archive.vn and archive.is versions of web pages",
+  "description": "Redirects to archive.vn, archive.is, and archive.ph versions of web pages",
   "permissions": [
     "activeTab",
     "tabs",
@@ -10,7 +10,8 @@
   ],
   "host_permissions": [
     "https://archive.vn/*",
-    "https://archive.is/*"
+    "https://archive.is/*",
+    "https://archive.ph/*"
   ],
   "action": {
     "default_popup": "popup.html",

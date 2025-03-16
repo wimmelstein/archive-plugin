@@ -59,8 +59,8 @@ async function checkArchiveExists(url, archiveDomain) {
 function createArchiveUrl(url, archiveDomain) {
   // Remove any existing protocol and clean the URL
   const cleanUrl = url.replace(/^https?:\/\//, '');
-  // For archive.is, we need to use a different format
-  if (archiveDomain === 'archive.is') {
+  // For archive.is and archive.ph, we need to use a different format
+  if (archiveDomain === 'archive.is' || archiveDomain === 'archive.ph') {
     return `https://${archiveDomain}/${cleanUrl}`;
   } else {
     // For archive.vn, we need to use the direct format
@@ -130,7 +130,7 @@ document.getElementById('archiveButton').addEventListener('click', async () => {
       const url = new URL(tab.url);
       
       // Skip if the URL is already an archive URL
-      if (url.hostname.includes('archive.vn') || url.hostname.includes('archive.is')) {
+      if (url.hostname.includes('archive.vn') || url.hostname.includes('archive.is') || url.hostname.includes('archive.ph')) {
         updateStatus('Already on an archive site');
         button.disabled = false;
         return;
@@ -139,7 +139,8 @@ document.getElementById('archiveButton').addEventListener('click', async () => {
       // List of archive sites to try
       const archiveSites = shuffleArray([
         { domain: 'archive.vn', name: 'Archive.vn' },
-        { domain: 'archive.is', name: 'Archive.is' }
+        { domain: 'archive.is', name: 'Archive.is' },
+        { domain: 'archive.ph', name: 'Archive.ph' }
       ]);
 
       // Try each archive site
