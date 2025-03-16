@@ -1,10 +1,16 @@
 // Function to check if a URL exists in an archive and get all versions
 async function checkArchiveExists(url, archiveDomain) {
   try {
+    console.log('Checking archive URL:', url);
     const response = await fetch(url);
-    if (!response.ok) return null;
+    console.log('Response status:', response.status);
+    if (!response.ok) {
+      console.log('Response not OK:', response.statusText);
+      return null;
+    }
     
     const html = await response.text();
+    console.log('Response HTML length:', html.length);
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
@@ -14,10 +20,11 @@ async function checkArchiveExists(url, archiveDomain) {
     
     for (const link of versionLinks) {
       const href = link.getAttribute('href');
-      if (href && href.match(/\/\d+$/)) {
-        const version = parseInt(href.match(/\d+$/)[0]);
+      // Check for both numeric versions and archive IDs
+      if (href && (href.match(/\/\d+$/) || href.match(/\/[a-zA-Z0-9]+$/))) {
+        const version = href.match(/\/[a-zA-Z0-9]+$/)[0].substring(1);
         versions.push({
-          url: url + href,
+          url: `https://${archiveDomain}/${version}`,
           version: version,
           text: link.textContent.trim()
         });
@@ -26,7 +33,7 @@ async function checkArchiveExists(url, archiveDomain) {
     
     if (versions.length > 0) {
       // Sort versions by number (descending)
-      versions.sort((a, b) => b.version - a.version);
+      versions.sort((a, b) => b.version.localeCompare(a.version));
       return {
         exists: true,
         url: url,
@@ -42,9 +49,15 @@ async function checkArchiveExists(url, archiveDomain) {
 
 // Function to create archive URL
 function createArchiveUrl(url, archiveDomain) {
-  // Remove any existing protocol
+  // Remove any existing protocol and clean the URL
   const cleanUrl = url.replace(/^https?:\/\//, '');
-  return `https://${archiveDomain}/${cleanUrl}`;
+  // For archive.is, we need to use a different format
+  if (archiveDomain === 'archive.is') {
+    return `https://${archiveDomain}/${cleanUrl}`;
+  } else {
+    // For archive.vn, we need to use the direct format
+    return `https://${archiveDomain}/${cleanUrl}`;
+  }
 }
 
 // Function to update status message
@@ -105,6 +118,7 @@ document.getElementById('archiveButton').addEventListener('click', async () => {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
     if (tab) {
+      console.log('Current tab URL:', tab.url);
       const url = new URL(tab.url);
       
       // Skip if the URL is already an archive URL
@@ -124,6 +138,7 @@ document.getElementById('archiveButton').addEventListener('click', async () => {
       for (const site of archiveSites) {
         updateStatus(`Checking ${site.name}...`);
         const archiveUrl = createArchiveUrl(tab.url, site.domain);
+        console.log(`Checking ${site.name} with URL:`, archiveUrl);
         const result = await checkArchiveExists(archiveUrl, site.domain);
         
         if (result && result.exists) {
