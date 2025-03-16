@@ -2,9 +2,11 @@
   "manifest_version": 3,
   "name": "Archive.vn Redirector",
   "version": "1.0",
-  "description": "Automatically redirects to archive.vn version of the current page",
+  "description": "Redirects to archive.vn and archive.is versions of web pages",
   "permissions": [
-    "tabs"
+    "activeTab",
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "https://archive.vn/*",
@@ -13,11 +15,16 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
+      "16": "icon16.png",
       "48": "icon48.png",
       "128": "icon128.png"
     }
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "icons": {
+    "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
   }

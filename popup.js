@@ -2,10 +2,14 @@
 async function checkArchiveExists(url, archiveDomain) {
   try {
     console.log('Checking archive URL:', url);
-    const response = await fetch(url, { redirect: 'follow' });
-    console.log('Response status:', response.status);
-    if (!response.ok) {
-      console.log('Response not OK:', response.statusText);
+    // Send message to background script to make the request
+    const response = await chrome.runtime.sendMessage({
+      type: 'fetchArchive',
+      url: url
+    });
+    
+    if (!response || !response.ok) {
+      console.log('Response not OK:', response?.statusText);
       return null;
     }
     
@@ -13,7 +17,7 @@ async function checkArchiveExists(url, archiveDomain) {
     const finalUrl = response.url;
     console.log('Final URL after redirects:', finalUrl);
     
-    const html = await response.text();
+    const html = response.html;
     console.log('Response HTML length:', html.length);
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
