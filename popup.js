@@ -23,21 +23,47 @@ async function checkArchiveExists(url, archiveDomain) {
     const doc = parser.parseFromString(html, 'text/html');
     
     // Look for version links in the page
-    const versionLinks = doc.querySelectorAll('a[href*="/"]');
     let versions = [];
     
-    for (const link of versionLinks) {
-      const href = link.getAttribute('href');
-      // Check for both numeric versions and archive IDs
-      if (href && (href.match(/\/\d+$/) || href.match(/\/[a-zA-Z0-9]+$/))) {
-        const version = href.match(/\/[a-zA-Z0-9]+$/)[0].substring(1);
-        versions.push({
-          url: `https://${archiveDomain}/${version}`,
-          version: version,
-          text: link.textContent.trim()
-        });
+    // Different selectors for different archive sites
+    if (archiveDomain === 'archive.ph') {
+      // For archive.ph, look for links in the version list
+      const versionLinks = doc.querySelectorAll('a[href*="/"]');
+      console.log('Found links:', versionLinks.length);
+      
+      for (const link of versionLinks) {
+        const href = link.getAttribute('href');
+        console.log('Link href:', href);
+        // Check for archive.ph's format
+        if (href && href.match(/\/[a-zA-Z0-9]+$/)) {
+          const version = href.match(/\/[a-zA-Z0-9]+$/)[0].substring(1);
+          versions.push({
+            url: `https://${archiveDomain}/${version}`,
+            version: version,
+            text: link.textContent.trim()
+          });
+        }
+      }
+    } else {
+      // For other archive sites
+      const versionLinks = doc.querySelectorAll('a[href*="/"]');
+      console.log('Found links:', versionLinks.length);
+      
+      for (const link of versionLinks) {
+        const href = link.getAttribute('href');
+        console.log('Link href:', href);
+        if (href && (href.match(/\/\d+$/) || href.match(/\/[a-zA-Z0-9]+$/))) {
+          const version = href.match(/\/[a-zA-Z0-9]+$/)[0].substring(1);
+          versions.push({
+            url: `https://${archiveDomain}/${version}`,
+            version: version,
+            text: link.textContent.trim()
+          });
+        }
       }
     }
+    
+    console.log('Found versions:', versions);
     
     if (versions.length > 0) {
       // Sort versions by number (descending)
